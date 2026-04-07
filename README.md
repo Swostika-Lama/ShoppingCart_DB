@@ -1,30 +1,66 @@
-# 🛒 Shopping Cart Localization App
+# 🛒 Shopping Cart App with Database‑Driven Localization
 
-## Project Overview
-This project is a Java-based Shopping Cart application that supports multi-language (localization) using a database-driven approach.
+A JavaFX Shopping Cart application with **full database‑driven localization**, supporting multiple languages including **right‑to‑left Arabic**.  
+All UI text is stored in the database and loaded dynamically at runtime — no `.properties` files, no hardcoded strings.
 
-The application allows users to:
-- Enter items, quantity, and price
-- Calculate total cost
-- Store cart data in a database
-- Switch between different languages dynamically
+This project demonstrates:
 
-All UI text is stored in the database and retrieved using a Localization Service.
+- Clean JavaFX architecture
+- DAO‑based database access
+- Dynamic UI translation
+- RTL layout switching
+- Shopping cart calculation
+- Docker + Jenkins integration
 
 ---
 
-## Features
-- Multi-language support:
-    - English (en-US)
-    - Finnish (fi-FI)
-    - Swedish (sv-SE)
-    - Japanese (ja-JP)
-    - Arabic (ar-AR) # Right-to-left support and arbaic language
-- Dynamic language switching
-- Database-driven translations (no hardcoded UI text)
-- Shopping cart functionality
-- Stores cart history with timestamp
-- Fallback to English if translation is missing
+## 🌍 Features
+
+### **Localization**
+- English (en‑US)
+- Finnish (fi‑FI)
+- Swedish (sv‑SE)
+- Japanese (ja‑JP)
+- Arabic (ar‑AR) — **RTL layout supported**
+
+### **Functionality**
+- Enter number of items
+- Dynamically generate input fields
+- Enter price + quantity
+- Calculate subtotal + total
+- Save cart history to database
+- Automatic fallback to English if translation is missing
+- Clean MVC architecture
+
+---
+
+## 🧠 How Localization Works (Database‑Driven)
+
+Unlike typical JavaFX apps that use `.properties` files, this project loads all UI text from the database.
+
+### **Flow**
+1. UI requests a translation key
+2. `LocalizationService` queries the database
+3. If translation exists → return it
+4. If missing → fallback to English
+5. If still missing → return `[key]` for debugging
+6. Controller updates UI labels dynamically
+
+### **Why this is better**
+- Add new languages without touching code
+- Update translations without rebuilding the app
+- Centralized translation management
+- Supports RTL languages like Arabic
+
+---
+
+## Arabic RTL (Right‑to‑Left) Support
+
+When Arabic is selected:
+
+```java
+rootPane.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+```
 
 ---
 
@@ -98,6 +134,10 @@ Run schema:
 ```bash
 mysql -u root -p shopping_cart_localization < schema.sql
 ```
+Seed initial data:
+```bashbash
+mysql -u root -p shopping_cart_localization < seed_data.sql
+```
 
 ### 3. Configure Database Connection
 Set environment variables:
@@ -116,18 +156,6 @@ mvn javafx:run
 
 ---
 
-## Localization Implementation
-
-The application uses a LocalizationService class to fetch translations from the database.
-
-Example:
-
-```java
-```
-
-If a translation is not available, the system falls back to English.
-
----
 ## Run Tests
 ```bash
 mvn test
@@ -146,8 +174,9 @@ docker run -it shoppingcartgui
 docker login
 
 # Push to Docker Hub
-docker tag shopping-cart 218468/shoppingcartgui:latest
+docker tag shoppingcartgui 218468/shoppingcartgui:latest
 docker push 218468/shoppingcartgui:latest
+
 ```
 ## Pull and Run from Docker Hub
 ```bash
@@ -172,8 +201,6 @@ This project includes a Jenkinsfile for:
 ---
 
 
-
----
 
 ## 👤 Author
 Swostika Lama

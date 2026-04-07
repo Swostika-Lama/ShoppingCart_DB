@@ -1,25 +1,51 @@
 package service;
 
 import dao.TranslationDAO;
-import db.DBConnection;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class LocalizationService {
 
     private final TranslationDAO translationDAO;
 
-    public LocalizationService() {
-        Connection conn = DBConnection.getConnection();
+    // Simple in-memory cache: key_locale → translated text
+    private final Map<String, String> cache = new HashMap<>();
+
+    public LocalizationService(Connection conn) {
         this.translationDAO = new TranslationDAO(conn);
     }
 
     public String get(String key, Locale locale) {
-        String text = translationDAO.findTranslation(key, locale.getLanguage(), locale.getCountry());
-        if (text != null) return text;
+        String cacheKey = key + "_" + locale.toString();
 
-        // fallback to English from DB only (no resource bundles)
-        return translationDAO.findTranslation(key, "en", "US");
+        // 1. Check cache first
+        if (cache.containsKey(cacheKey)) {
+            return cache.get(cacheKey);
+        }
+
+        // 2. Try requested language
+        String text = translationDAO.findTranslation(
+                key,
+                locale.getLanguage(),
+                locale.getCountry()
+        );
+
+        // 3. Fallback to English
+        if (text == null) {
+            text = translationDAO.findTranslation(key, "en", "US");
+        }
+
+        // 4. Final fallback (debug-friendly)
+        if (text == null) {
+            text = "[" + key + "]";
+        }
+
+        // 5. Store in cache
+        cache.put(cacheKey, text);
+
+        return text;
     }
 }
