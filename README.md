@@ -19,7 +19,7 @@ All UI text is stored in the database and retrieved using a Localization Service
     - Finnish (fi-FI)
     - Swedish (sv-SE)
     - Japanese (ja-JP)
-    - Arabic (ar-AE)
+    - Arabic (ar-AR) # Right-to-left support and arbaic language
 - Dynamic language switching
 - Database-driven translations (no hardcoded UI text)
 - Shopping cart functionality
@@ -61,7 +61,7 @@ Stores individual items:
 Stores supported languages:
 - id
 - code (e.g., en, fi, ja, sv, ar)
-- country (e.g., US, FI, JP, SE, AE)
+- country (e.g., US, FI, JP, SE, AR)
 - display_name (e.g., English, Finnish, Japanese, Swedish, Arabic)
 
 ### content
@@ -84,8 +84,8 @@ See schema.sql  and seed_data.sql for full table definitions.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/shopping-cart-localization.git
-cd shopping-cart-localization
+git clone https://github.com/Swostika-Lama/ShoppingCart_DB.git
+cd ShoppingCart_DB
 ```
 
 ### 2. Setup Database
@@ -138,21 +138,21 @@ mvn test
 Build Docker image:
 ```bash
 # Build
-docker build -t shopping-cart .
+docker build -t shoppingcartgui .
 
 # Run
-docker run -it shopping-cart
+docker run -it shoppingcartgui
 
 docker login
 
 # Push to Docker Hub
-docker tag shopping-cart 218468/shopping-cart:latest
-docker push 218468/shopping-cart:latest
+docker tag shopping-cart 218468/shoppingcartgui:latest
+docker push 218468/shoppingcartgui:latest
 ```
 ## Pull and Run from Docker Hub
 ```bash
-docker pull 218468/shopping-cart
-docker run -it 218468/shopping-cart
+docker pull 218468/shoppingcartgui:latest
+docker run -it 218468/shoppingcartgui
 ```
 
 Run container:
