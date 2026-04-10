@@ -7,23 +7,23 @@ class CartRecordTest {
 
     @Test
     void testSettersAndGetters() {
-        CartRecord record = new CartRecord();
+        CartRecord store = new CartRecord();
 
-        record.setTotalItems(5);
-        record.setTotalCost(19.99);
-        record.setLanguage("en");
+        store.setTotalItems(5);
+        store.setTotalCost(19.99);
+        store.setLanguage("en");
 
-        assertEquals(5, record.getTotalItems());
-        assertEquals(19.99, record.getTotalCost());
-        assertEquals("en", record.getLanguage());
+        assertEquals(5, store.getTotalItems());
+        assertEquals(19.99, store.getTotalCost());
+        assertEquals("en", store.getLanguage());
     }
 
     @Test
     void testDefaultValues() {
-        CartRecord record = new CartRecord();
+        CartRecord store = new CartRecord();
 
-        assertEquals(0, record.getTotalItems());
-        assertEquals(0.0, record.getTotalCost());
-        assertNull(record.getLanguage());
+        assertEquals(0, store.getTotalItems());
+        assertEquals(0.0, store.getTotalCost());
+        assertNull(store.getLanguage());
     }
 }

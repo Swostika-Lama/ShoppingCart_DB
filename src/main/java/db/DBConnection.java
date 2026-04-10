@@ -11,6 +11,8 @@ public class DBConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(DBConnection.class);
 
+    private DBConnection() { }
+
     private static final String URL = System.getenv().getOrDefault(
             "DB_URL",
             "jdbc:mysql://localhost:3306/shopping_cart_localization"
@@ -29,11 +31,10 @@ public class DBConnection {
                     "Failed to connect to DB at {}. Ensure MySQL is running. Current user={}",
                     URL, USER, e
             );
+            throw new IllegalStateException("Database connection failed", e);
         }
-        return null;
     }
 
-    // ✔ Extracted nested try block
     private static void logMetadata(Connection conn) {
         try {
             DatabaseMetaData md = conn.getMetaData();

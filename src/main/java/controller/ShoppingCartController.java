@@ -18,30 +18,25 @@ import java.util.Locale;
 
 public class ShoppingCartController {
 
-    // Language selection
     @FXML private Label selectLabel;
     @FXML private ComboBox<String> dropDown;
     @FXML private Button languageConfirm;
 
-    // Item count
     @FXML private Label itemLabel;
     @FXML private TextField itemPlaceholder;
     @FXML private Button itemButton;
 
-    // Dynamic items container
     @FXML private VBox itemsContainer;
 
-    // Total
     @FXML private Button calculateButton;
     @FXML private Label totalLabel;
 
     @FXML private AnchorPane rootPane;
 
     private LocalizationService localizationService;
+    private CartService cartService;
 
-    // Sonar‑approved default locale
     private Locale currentLocale = Locale.forLanguageTag("en-US");
-
     private final List<ItemRow> itemRows = new ArrayList<>();
 
     private static class ItemRow {
@@ -58,17 +53,17 @@ public class ShoppingCartController {
         }
     }
 
-    // Injected from org.example.ShoppingCartApp
+    // Inject services
     public void setLocalizationService(LocalizationService ls) {
         this.localizationService = ls;
         updateTexts();
     }
 
+
     @FXML
     public void initialize() {
         dropDown.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
         dropDown.setValue("English");
-
         calculateButton.setDisable(true);
     }
 
@@ -87,7 +82,7 @@ public class ShoppingCartController {
                 currentLocale = Locale.forLanguageTag("ja-JP");
                 break;
             case "Arabic":
-                currentLocale = Locale.forLanguageTag("ar-SA"); //
+                currentLocale = Locale.forLanguageTag("ar-SA");
                 break;
             default:
                 currentLocale = Locale.forLanguageTag("en-US");
@@ -97,44 +92,24 @@ public class ShoppingCartController {
     }
 
     private void updateTexts() {
-
-        // RTL support
         if (currentLocale.getLanguage().equals("ar")) {
             rootPane.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         } else {
             rootPane.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         }
 
-        String t;
+        selectLabel.setText(localizationService.get("select.language", currentLocale));
+        languageConfirm.setText(localizationService.get("confirm.language", currentLocale));
+        itemLabel.setText(localizationService.get("enter.number.of.items", currentLocale));
+        itemPlaceholder.setPromptText(localizationService.get("number.of.items.prompt", currentLocale));
+        itemButton.setText(localizationService.get("enter.items", currentLocale));
+        calculateButton.setText(localizationService.get("calculate.total", currentLocale));
+        totalLabel.setText(localizationService.get("total.cost", currentLocale));
 
-        t = localizationService.get("select.language", currentLocale);
-        selectLabel.setText(t);
-
-        t = localizationService.get("confirm.language", currentLocale);
-        languageConfirm.setText(t);
-
-        t = localizationService.get("enter.number.of.items", currentLocale);
-        itemLabel.setText(t);
-
-        t = localizationService.get("number.of.items.prompt", currentLocale);
-        itemPlaceholder.setPromptText(t);
-
-        t = localizationService.get("enter.items", currentLocale);
-        itemButton.setText(t);
-
-        t = localizationService.get("calculate.total", currentLocale);
-        calculateButton.setText(t);
-
-        t = localizationService.get("total.cost", currentLocale);
-        totalLabel.setText(t);
-
-        // Update dynamic rows
         for (int i = 0; i < itemRows.size(); i++) {
             ItemRow row = itemRows.get(i);
-
             row.quantityLabel.setText(localizationService.get("enter.quantity", currentLocale) + " " + (i + 1));
             row.quantityField.setPromptText(localizationService.get("quantity.prompt", currentLocale));
-
             row.priceLabel.setText(localizationService.get("enter.price", currentLocale));
             row.priceField.setPromptText(localizationService.get("price.prompt", currentLocale));
         }
@@ -153,7 +128,6 @@ public class ShoppingCartController {
             itemRows.clear();
 
             for (int i = 0; i < itemCount; i++) {
-
                 Label qLabel = new Label(localizationService.get("enter.quantity", currentLocale) + " " + (i + 1));
                 TextField qField = new TextField();
                 qField.setPromptText(localizationService.get("quantity.prompt", currentLocale));
@@ -202,7 +176,7 @@ public class ShoppingCartController {
 
             totalLabel.setText(localizationService.get("total.cost", currentLocale) + " " + grandTotal);
 
-            CartService cartService = new CartService();
+            // Use injected service
             cartService.saveCart(items, currentLocale.getLanguage());
 
         } catch (NumberFormatException e) {
