@@ -1,7 +1,6 @@
 package model;
 
 public class CartRecord {
-    private int id;
     private int totalItems;
     private double totalCost;
     private String language;

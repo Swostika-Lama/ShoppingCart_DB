@@ -38,7 +38,9 @@ public class ShoppingCartController {
     @FXML private AnchorPane rootPane;
 
     private LocalizationService localizationService;
-    private Locale currentLocale = new Locale("en", "US");
+
+    // Sonar‑approved default locale
+    private Locale currentLocale = Locale.forLanguageTag("en-US");
 
     private final List<ItemRow> itemRows = new ArrayList<>();
 
@@ -56,7 +58,7 @@ public class ShoppingCartController {
         }
     }
 
-    // Injected from ShoppingCartApp
+    // Injected from org.example.ShoppingCartApp
     public void setLocalizationService(LocalizationService ls) {
         this.localizationService = ls;
         updateTexts();
@@ -75,14 +77,20 @@ public class ShoppingCartController {
         String selected = dropDown.getValue();
 
         switch (selected) {
-            case "Finnish": currentLocale = new Locale("fi", "FI"); break;
-            case "Swedish": currentLocale = new Locale("sv", "SE"); break;
-            case "Japanese": currentLocale = new Locale("ja", "JP"); break;
+            case "Finnish":
+                currentLocale = Locale.forLanguageTag("fi-FI");
+                break;
+            case "Swedish":
+                currentLocale = Locale.forLanguageTag("sv-SE");
+                break;
+            case "Japanese":
+                currentLocale = Locale.forLanguageTag("ja-JP");
+                break;
             case "Arabic":
-                currentLocale = new Locale("ar", "AR");
+                currentLocale = Locale.forLanguageTag("ar-SA"); //
                 break;
             default:
-                currentLocale = new Locale("en", "US");
+                currentLocale = Locale.forLanguageTag("en-US");
         }
 
         updateTexts();
