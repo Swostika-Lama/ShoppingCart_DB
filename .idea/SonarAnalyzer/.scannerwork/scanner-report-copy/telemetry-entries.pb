@@ -8,7 +8,7 @@
 jre_provisioning_disabledfalse!
 sonar.scanner.appVersion0.2.2
 text.analyzed_files_count12)
-"java.analysis.main.success.time_ms440
+"java.analysis.main.success.time_ms458
 text.civendor_appveyor0%
  text.analyzed_hidden_files_count0 
 java.dependency.lombokabsent*

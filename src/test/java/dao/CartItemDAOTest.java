@@ -3,8 +3,10 @@ package dao;
 import model.CartItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import test.util.TestDbHelper;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,15 +15,12 @@ class CartItemDAOTest {
 
     @BeforeEach
     void setup() {
-        String dbName = "testdb_" + System.nanoTime();
-        System.setProperty("DB_URL", "jdbc:h2:mem:" + dbName + ";MODE=MySQL");
-        System.setProperty("DB_USER", "sa");
-        System.setProperty("DB_PASSWORD", "");
+        TestDbHelper.prepareUniqueDb();
     }
 
     @Test
     void testInsertItem_executesWithoutException() throws Exception {
-        try (Connection conn = db.DBConnection.getConnection(); Statement st = conn.createStatement()) {
+        try (Connection conn = TestDbHelper.getConnection(); Statement st = conn.createStatement()) {
             st.execute("CREATE TABLE cart_items(cart_record_id INT, item_number INT, price DOUBLE, quantity INT, subtotal DOUBLE);");
         }
 
@@ -34,5 +33,16 @@ class CartItemDAOTest {
 
         CartItemDAO dao = new CartItemDAO();
         assertDoesNotThrow(() -> dao.insertItem(item));
+
+        // verify persisted
+        try (Connection conn = TestDbHelper.getConnection(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery("SELECT cart_record_id, item_number, price, quantity, subtotal FROM cart_items")) {
+            assertTrue(rs.next(), "Expected a row in cart_items table");
+            assertEquals(1, rs.getInt(1));
+            assertEquals(1, rs.getInt(2));
+            assertEquals(10.0, rs.getDouble(3));
+            assertEquals(2, rs.getInt(4));
+            assertEquals(20.0, rs.getDouble(5));
+            assertFalse(rs.next(), "Only one row expected");
+        }
     }
 }

@@ -12,35 +12,34 @@ import org.mockito.ArgumentCaptor;
 import service.CartService;
 import service.LocalizationService;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ShoppingCartControllerTest {
+class ShoppingCartControllerTest {
 
     private ShoppingCartController controller;
     private LocalizationService localizationService;
     private CartService cartService;
 
-    // Reflection helper to inject private @FXML fields
-    private static void inject(Object controller, String fieldName, Object value) {
+    private static void inject(Object target, String fieldName, Object value) {
         try {
-            var field = controller.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(controller, value);
+            Field f = target.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            f.set(target, value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    // Reflection helper to READ private fields
-    private static <T> T get(Object controller, String fieldName, Class<T> type) {
+    private static <T> T get(Object target, String fieldName, Class<T> type) {
         try {
-            var field = controller.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return type.cast(field.get(controller));
+            Field f = target.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            return type.cast(f.get(target));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +57,7 @@ public class ShoppingCartControllerTest {
         when(localizationService.get(anyString(), any(Locale.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        // Inject private UI fields
+        // Inject UI fields BEFORE initialize()
         inject(controller, "selectLabel", new Label());
         inject(controller, "dropDown", new ComboBox<>());
         inject(controller, "languageConfirm", new Button());
@@ -73,11 +72,11 @@ public class ShoppingCartControllerTest {
 
         inject(controller, "rootPane", new AnchorPane());
 
-        // Inject services
-        controller.setLocalizationService(localizationService);
-        inject(controller, "cartService", cartService);
-
         controller.initialize();
+
+        // Inject services AFTER initialize()
+        controller.setLocalizationService(localizationService);
+        controller.setCartService(cartService);
     }
 
     @Test
