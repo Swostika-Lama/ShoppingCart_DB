@@ -3,10 +3,7 @@ package db;
 import org.junit.jupiter.api.Test;
 import test.util.TestDbHelper;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -82,4 +79,57 @@ class DBConnectionTest {
 
         assertDoesNotThrow(() -> m.invoke(null, mockConn));
     }
+    @Test
+    void testLogMetadata_success() throws Exception {
+        Connection mockConn = mock(Connection.class);
+        DatabaseMetaData md = mock(DatabaseMetaData.class);
+
+        when(mockConn.getMetaData()).thenReturn(md);
+        when(md.getURL()).thenReturn("jdbc:h2:mem:test");
+        when(md.getUserName()).thenReturn("sa");
+        when(md.getDatabaseProductName()).thenReturn("H2");
+        when(md.getDatabaseProductVersion()).thenReturn("2.2.224");
+
+        var m = DBConnection.class.getDeclaredMethod("logMetadata", Connection.class);
+        m.setAccessible(true);
+
+        assertDoesNotThrow(() -> m.invoke(null, mockConn));
+    }
+    @Test
+    void testGetConnection_userBlank_passwordPresent() throws Exception {
+        System.setProperty("DB_URL", "jdbc:h2:mem:test_blank_user");
+        System.setProperty("DB_USER", "");
+        System.setProperty("DB_PASSWORD", "secret");
+
+        try (Connection conn = DBConnection.getConnection()) {
+            assertNotNull(conn);
+            assertFalse(conn.isClosed());
+        }
+    }
+    @Test
+    void testGetConnection_noCredentials() throws Exception {
+        System.setProperty("DB_URL", "jdbc:h2:mem:test_nocreds");
+        System.clearProperty("DB_USER");
+        System.clearProperty("DB_PASSWORD");
+
+        try (Connection conn = DBConnection.getConnection()) {
+            assertNotNull(conn);
+        }
+    }
+    @Test
+    void testGetConfig_envOverridesDefault() throws Exception {
+        // System property should override env and default
+        System.setProperty("TEST_KEY", "sysValue");
+
+        String result = invokeGetConfig("TEST_KEY", "fallback");
+
+        assertEquals("sysValue", result);
+
+        System.clearProperty("TEST_KEY");
+    }
+
+
+
+
+
 }

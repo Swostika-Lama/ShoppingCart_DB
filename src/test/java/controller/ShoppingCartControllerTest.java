@@ -57,7 +57,6 @@ class ShoppingCartControllerTest {
         when(localizationService.get(anyString(), any(Locale.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        // Inject UI fields BEFORE initialize()
         inject(controller, "selectLabel", new Label());
         inject(controller, "dropDown", new ComboBox<>());
         inject(controller, "languageConfirm", new Button());
@@ -74,7 +73,6 @@ class ShoppingCartControllerTest {
 
         controller.initialize();
 
-        // Inject services AFTER initialize()
         controller.setLocalizationService(localizationService);
         controller.setCartService(cartService);
     }
@@ -100,7 +98,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    void testHandleItem() {
+    void testHandleItem_valid() {
         TextField itemPlaceholder = get(controller, "itemPlaceholder", TextField.class);
         VBox itemsContainer = get(controller, "itemsContainer", VBox.class);
         Button calculateButton = get(controller, "calculateButton", Button.class);
@@ -113,7 +111,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    void testHandleCalculate() {
+    void testHandleCalculate_success() {
         TextField itemPlaceholder = get(controller, "itemPlaceholder", TextField.class);
         VBox itemsContainer = get(controller, "itemsContainer", VBox.class);
 
@@ -137,5 +135,22 @@ class ShoppingCartControllerTest {
         List<CartItem> saved = captor.getValue();
         assertEquals(2, saved.size());
         assertEquals(20.0, saved.get(0).getSubtotal());
+    }
+
+    @Test
+    void testHandleCalculate_missingCartService_throws() {
+        controller.setCartService(null);
+        assertThrows(IllegalStateException.class, controller::handleCalculate);
+    }
+
+    @Test
+    void testUpdateTexts_arabic_setsRTL() {
+        ComboBox<String> dropDown = get(controller, "dropDown", ComboBox.class);
+        dropDown.setValue("Arabic");
+
+        controller.handleLanguage();
+
+        AnchorPane root = get(controller, "rootPane", AnchorPane.class);
+        assertEquals(javafx.geometry.NodeOrientation.RIGHT_TO_LEFT, root.getNodeOrientation());
     }
 }

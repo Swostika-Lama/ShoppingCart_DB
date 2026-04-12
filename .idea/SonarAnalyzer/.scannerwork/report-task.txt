@@ -2,5 +2,5 @@ projectKey=SonarAnalyzer:ShoppingCart_Db
 serverUrl=http://localhost:9000
 serverVersion=26.3.0.120487
 dashboardUrl=http://localhost:9000/dashboard?id=SonarAnalyzer%3AShoppingCart_Db
-ceTaskId=0fe564f2-7828-42a9-a6a7-ea76e1f5cb1f
-ceTaskUrl=http://localhost:9000/api/ce/task?id=0fe564f2-7828-42a9-a6a7-ea76e1f5cb1f
+ceTaskId=4d57c00c-532e-4d6b-a04a-59f511125307
+ceTaskUrl=http://localhost:9000/api/ce/task?id=4d57c00c-532e-4d6b-a04a-59f511125307

@@ -1,18 +1,14 @@
 package service;
 
-import dao.TranslationDAO;
-import org.h2.tools.RunScript;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LocalizationServiceTest {
+class LocalizationServiceTest {
 
     @BeforeEach
     void setup() {

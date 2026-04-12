@@ -1,5 +1,6 @@
 package dao;
 
+import db.DBConnection;
 import model.CartRecord;
 import org.junit.jupiter.api.Test;
 import test.util.TestDbHelper;
@@ -9,6 +10,10 @@ import java.sql.Statement;
 
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CartDAOTest {
 
@@ -41,10 +46,9 @@ class CartDAOTest {
     }
 
     @Test
-    void testInsertCart_returnsMinusOne_onSqlError() throws Exception {
+    void testInsertCart_returnsMinusOne_onSqlError() {
         TestDbHelper.prepareUniqueDb();
 
-        // Do NOT create cart_records table so insert will fail and method returns -1
         CartRecord cart = new CartRecord();
         cart.setTotalItems(1);
         cart.setTotalCost(10.0);
@@ -55,5 +59,29 @@ class CartDAOTest {
 
         assertEquals(-1, id, "Expected -1 when insert fails due to missing table");
     }
+    @Test
+    void testInsertCart_handlesUnexpectedException() throws Exception {
+        CartRecord cart = new CartRecord();
+        cart.setTotalItems(1);
+        cart.setTotalCost(10.0);
+        cart.setLanguage("en");
+
+        try (var mocked = org.mockito.Mockito.mockStatic(DBConnection.class)) {
+
+            Connection fakeConn = mock(Connection.class);
+            when(fakeConn.prepareStatement(anyString(), anyInt()))
+                    .thenThrow(new RuntimeException("boom"));
+
+            mocked.when(DBConnection::getConnection).thenReturn(fakeConn);
+
+            CartDAO dao = new CartDAO();
+            int id = dao.insertCart(cart);
+
+            assertEquals(-1, id);
+        }
+    }
+
+
+
 }
 

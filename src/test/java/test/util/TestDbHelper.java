@@ -20,15 +20,17 @@ public final class TestDbHelper {
         return dbName;
     }
 
-    public static Connection getConnection() throws SQLException {
+    public static Connection getConnection(){
         return DBConnection.getConnection();
     }
 
-    public static void runSql(Connection conn, String... sqlStatements) throws SQLException {
+    public static void runSql(Connection conn, String... sqlStatements) {
         try (Statement st = conn.createStatement()) {
             for (String sql : sqlStatements) {
                 st.execute(sql);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
