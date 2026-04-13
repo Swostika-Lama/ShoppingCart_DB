@@ -25,7 +25,7 @@ public class ShoppingCartApp extends Application {
 
         // 2. Services
         LocalizationService ls = new LocalizationService(conn);
-        CartService cartService = new CartService(); // ✅ ADD THIS
+        CartService cartService = new CartService();
 
         // 3. Load FXML
         FXMLLoader loader = new FXMLLoader(
@@ -37,7 +37,7 @@ public class ShoppingCartApp extends Application {
         // 4. Controller
         controller.ShoppingCartController controller = loader.getController();
 
-        // 5. Inject ALL dependencies (THIS WAS MISSING)
+        // 5. Inject ALL dependencies
         controller.setLocalizationService(ls);
         controller.setCartService(cartService);
 
