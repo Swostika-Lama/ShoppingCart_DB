@@ -63,14 +63,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
-                    sh '''
-                        ${tool 'SonarQubeServer'}/bin/sonar-scanner' \
-                        -Dsonar.projectKey=ShoppingCartGUI \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.projectName=ShoppingCartGUI \
-                        -Dsonar.host.url=${SONARQUBE_SERVER} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                    '''
+                    script {
+                        def scannerHome = tool 'SonarQubeScanner'
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=ShoppingCartGUI \
+                            -Dsonar.sources=src/main/java \
+                            -Dsonar.projectName=ShoppingCartGUI \
+                            -Dsonar.host.url=$SONAR_HOST_URL \
+                            -Dsonar.login=$SONAR_TOKEN
+                        """
+                    }
                 }
             }
         }
