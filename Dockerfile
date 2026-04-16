@@ -20,6 +20,6 @@ RUN wget https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11-ea+3_linu
 
 WORKDIR /app
 
-COPY --from=build /app/target/ShoppingCartApp.jar app.jar
+COPY --from=build /app/target/org.example.ShoppingCartApp.jar app.jar
 
 ENTRYPOINT ["java", "--module-path", "/opt/openjfx/lib", "--add-modules", "javafx.controls,javafx.fxml", "-jar", "app.jar"]
