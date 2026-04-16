@@ -27,8 +27,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'git@github.com:Swostika-Lama/ShoppingCart_DB.git',
-                CredentialsId: 'private'
+                url: 'git@github.com:Swostika-Lama/ShoppingCart_DB.git'
             }
         }
 
