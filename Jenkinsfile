@@ -5,8 +5,8 @@ pipeline {
     }
 
     environment {
-        JAVA_HOME = tool 'JAVA_HOME'
-        PATH = "/usr/local/bin:$PATH"
+        JAVA_HOME = tool 'JDK21'
+        PATH = "${env.JAVA_HOME}/bin:/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
 
         SONARQUBE_SERVER = 'SonarQubeServer'
         SONAR_TOKEN = credentials('sonar-token-id')
