@@ -64,7 +64,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
                     sh '''
-                        ${tool 'SonarQubeServer'}/bin/sonar-scanner \
+                        ${tool 'SonarQubeServer'}/bin/sonar-scanner' \
                         -Dsonar.projectKey=ShoppingCartGUI \
                         -Dsonar.sources=src/main/java \
                         -Dsonar.projectName=ShoppingCartGUI \
