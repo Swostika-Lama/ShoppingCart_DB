@@ -1,15 +1,19 @@
 pipeline {
     agent any
+    tools {
+        maven 'MAVEN_HOME'
+    }
 
     environment {
+        JAVA_HOME = tool 'JAVA_HOME'
         PATH = "/usr/local/bin:$PATH"
+
+        SONARQUBE_SERVER = 'SonarQubeServer'
+        SONAR_TOKEN = credentials('sonar-token-id')
+
         DOCKERHUB_CREDENTIALS_ID = 'docker-jenkins'
         DOCKERHUB_REPO = 'swostikalama/shoppingcartgui'
         DOCKER_IMAGE_TAG = 'latest'
-    }
-
-    tools {
-        maven 'MAVEN_HOME'
     }
 
     stages {
@@ -23,7 +27,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'git@github.com:Swostika-Lama/ShoppingCart_DB.git'
+                url: 'git@github.com:Swostika-Lama/ShoppingCart_DB.git',
+                CredentialsId: 'private'
             }
         }
 
@@ -56,14 +61,26 @@ pipeline {
                 jacoco()
             }
         }
-
-        stage('Build Docker Image (AMD64)') {
+        stage('SonarQube Analysis') {
             steps {
-                sh '''
-                    docker build \
-                        --platform linux/amd64 \
-                        -t ${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG} .
-                '''
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh '''
+                        ${tool 'SonarQubeServer'}/bin/sonar-scanner \
+                        -Dsonar.projectKey=ShoppingCartGUI \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.projectName=ShoppingCartGUI \
+                        -Dsonar.host.url=${SONARQUBE_SERVER} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t ${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG} .
+                """
             }
         }
 
