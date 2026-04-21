@@ -12,15 +12,23 @@ public class CartService {
     private CartDAO cartDAO = new CartDAO();
     private CartItemDAO itemDAO = new CartItemDAO();
 
-    public void saveCart(List<CartItem> items, String language) {
+    // FIXED: use int languageId
+    public void saveCart(List<CartItem> items, int languageId) {
 
-        int totalItems = items.stream().mapToInt(CartItem::getQuantity).sum();
-        double totalCost = items.stream().mapToDouble(CartItem::getSubtotal).sum();
+        int totalItems = items.stream()
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+
+        double totalCost = items.stream()
+                .mapToDouble(CartItem::getSubtotal)
+                .sum();
 
         CartRecord cart = new CartRecord();
         cart.setTotalItems(totalItems);
         cart.setTotalCost(totalCost);
-        cart.setLanguage(language);
+
+        // 🔥 FIX: store languageId instead of String
+        cart.setLanguageId(languageId);
 
         int cartId = cartDAO.insertCart(cart);
 

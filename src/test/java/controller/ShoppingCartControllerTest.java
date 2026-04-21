@@ -14,7 +14,6 @@ import service.LocalizationService;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -47,14 +46,15 @@ class ShoppingCartControllerTest {
 
     @BeforeEach
     void setup() {
-        new JFXPanel(); // Start JavaFX runtime
+        new JFXPanel(); // initialize JavaFX
 
         controller = new ShoppingCartController();
 
         localizationService = mock(LocalizationService.class);
         cartService = mock(CartService.class);
 
-        when(localizationService.get(anyString(), any(Locale.class)))
+        // FIXED MOCK (languageId-based)
+        when(localizationService.get(anyString(), anyInt()))
                 .thenAnswer(inv -> inv.getArgument(0));
 
         inject(controller, "selectLabel", new Label());
@@ -87,14 +87,29 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    void testHandleLanguage() {
+    void testHandleLanguage_finnish() {
         ComboBox<String> dropDown = get(controller, "dropDown", ComboBox.class);
         dropDown.setValue("Finnish");
 
         controller.handleLanguage();
 
         verify(localizationService, atLeastOnce())
-                .get(anyString(), eq(Locale.forLanguageTag("fi-FI")));
+                .get(anyString(), eq(2)); // Finnish = 2
+    }
+
+    @Test
+    void testHandleLanguage_arabic_setsRTL() {
+        ComboBox<String> dropDown = get(controller, "dropDown", ComboBox.class);
+        dropDown.setValue("Arabic");
+
+        controller.handleLanguage();
+
+        AnchorPane root = get(controller, "rootPane", AnchorPane.class);
+
+        assertEquals(
+                javafx.geometry.NodeOrientation.RIGHT_TO_LEFT,
+                root.getNodeOrientation()
+        );
     }
 
     @Test
@@ -130,7 +145,7 @@ class ShoppingCartControllerTest {
         controller.handleCalculate();
 
         ArgumentCaptor<List<CartItem>> captor = ArgumentCaptor.forClass(List.class);
-        verify(cartService).saveCart(captor.capture(), anyString());
+        verify(cartService).saveCart(captor.capture(), anyInt()); // FIXED
 
         List<CartItem> saved = captor.getValue();
         assertEquals(2, saved.size());
@@ -141,16 +156,5 @@ class ShoppingCartControllerTest {
     void testHandleCalculate_missingCartService_throws() {
         controller.setCartService(null);
         assertThrows(IllegalStateException.class, controller::handleCalculate);
-    }
-
-    @Test
-    void testUpdateTexts_arabic_setsRTL() {
-        ComboBox<String> dropDown = get(controller, "dropDown", ComboBox.class);
-        dropDown.setValue("Arabic");
-
-        controller.handleLanguage();
-
-        AnchorPane root = get(controller, "rootPane", AnchorPane.class);
-        assertEquals(javafx.geometry.NodeOrientation.RIGHT_TO_LEFT, root.getNodeOrientation());
     }
 }

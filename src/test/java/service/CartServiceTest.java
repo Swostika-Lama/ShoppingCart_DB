@@ -22,9 +22,28 @@ class CartServiceTest {
 
     @Test
     void testSaveCart_callsDAOs() throws Exception {
-        try (Connection conn = db.DBConnection.getConnection(); Statement st = conn.createStatement()) {
-            st.execute("CREATE TABLE cart_records(id INT AUTO_INCREMENT PRIMARY KEY, total_items INT, total_cost DOUBLE, language VARCHAR(10));");
-            st.execute("CREATE TABLE cart_items(cart_record_id INT, item_number INT, price DOUBLE, quantity INT, subtotal DOUBLE);");
+
+        try (Connection conn = db.DBConnection.getConnection();
+             Statement st = conn.createStatement()) {
+
+            st.execute("""
+                CREATE TABLE cart_records(
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    total_items INT,
+                    total_cost DOUBLE,
+                    language_id INT
+                );
+            """);
+
+            st.execute("""
+                CREATE TABLE cart_items(
+                    cart_record_id INT,
+                    item_number INT,
+                    price DOUBLE,
+                    quantity INT,
+                    subtotal DOUBLE
+                );
+            """);
         }
 
         CartService svc = new CartService();
@@ -35,7 +54,7 @@ class CartServiceTest {
         item.setQuantity(2);
         item.setSubtotal(20.0);
 
-        // Should not throw
-        assertDoesNotThrow(() -> svc.saveCart(List.of(item), "en"));
+        // FIXED: use languageId instead of "en"
+        assertDoesNotThrow(() -> svc.saveCart(List.of(item), 1));
     }
 }

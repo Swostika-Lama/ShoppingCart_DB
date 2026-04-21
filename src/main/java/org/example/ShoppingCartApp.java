@@ -9,7 +9,6 @@ import service.CartService;
 import db.DBConnection;
 
 import java.sql.Connection;
-import java.util.Locale;
 
 public class ShoppingCartApp extends Application {
 
@@ -20,30 +19,29 @@ public class ShoppingCartApp extends Application {
             return;
         }
 
-        // 1. DB connection
+        // DB connection
         Connection conn = DBConnection.getConnection();
 
-        // 2. Services
+        // Services
         LocalizationService ls = new LocalizationService(conn);
         CartService cartService = new CartService();
 
-        // 3. Load FXML
+        // Load FXML
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/FXML/shopping.fxml")
         );
 
         Scene scene = new Scene(loader.load());
 
-        // 4. Controller
+        // Controller
         controller.ShoppingCartController controller = loader.getController();
 
-        // 5. Inject ALL dependencies
+        // Inject dependencies
         controller.setLocalizationService(ls);
         controller.setCartService(cartService);
 
-        // 6. Title
-        Locale locale = Locale.getDefault();
-        stage.setTitle(ls.get("app.title", locale));
+        // ✅ FIX: use languageId instead of Locale
+        stage.setTitle(ls.get("app.title", 1));
 
         stage.setScene(scene);
         stage.show();

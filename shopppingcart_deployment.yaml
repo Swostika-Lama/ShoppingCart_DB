@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shoppingcartapp
+  labels:
+    app: shoppingcartapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shoppingcartapp
+  template:
+    metadata:
+      labels:
+        app: shoppingcartapp
+    spec:
+      containers:
+        - name: shoppingcartapp
+          image: swostikalama/shoppingcartgui:latest
+          imagePullPolicy: Always
+          env:
+            - name: DISPLAY
+              value: "host.minikube.internal:0.0"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Dprism.order=sw"
+          ports:
+            - containerPort: 8080

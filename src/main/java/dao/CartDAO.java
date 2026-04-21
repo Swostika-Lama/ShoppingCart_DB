@@ -12,14 +12,18 @@ public class CartDAO {
     private static final Logger logger = LoggerFactory.getLogger(CartDAO.class);
 
     public int insertCart(CartRecord cart) {
-        String sql = "INSERT INTO cart_records (total_items, total_cost, language) VALUES (?, ?, ?)";
+
+        // FIX: use language_id instead of language
+        String sql = "INSERT INTO cart_records (total_items, total_cost, language_id) VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, cart.getTotalItems());
             stmt.setDouble(2, cart.getTotalCost());
-            stmt.setString(3, cart.getLanguage());
+
+            // FIX: set language_id instead of language
+            stmt.setInt(3, cart.getLanguageId());
 
             int rows = stmt.executeUpdate();
             logger.info("Inserted {} row(s) into cart_records", rows);

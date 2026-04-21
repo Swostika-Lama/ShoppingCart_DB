@@ -1,25 +1,20 @@
-# ---------- BUILD STAGE ----------
-FROM maven:3.8-amazoncorretto-21-debian AS build
-
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+RUN apt-get update && apt-get install -y \
+    libx11-6 libxext6 libxrender1 libxtst6 libxi6 libgtk-3-0 mesa-utils wget unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-#RUN mvn -q -DskipTests package
-RUN mvn clean package -DskipTests
+RUN mkdir -p /javafx-sdk \
+    && wget -O javafx.zip https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11-ea+2_linux-aarch64_bin-sdk.zip \
+    && unzip javafx.zip -d /javafx-sdk \
+    && mv /javafx-sdk/javafx-sdk-21.0.11/lib /javafx-sdk/lib \
+    && rm -rf /javafx-sdk/javafx-sdk-21.0.11 javafx.zip
 
-# ---------- RUNTIME STAGE ----------
-FROM maven:3.9-eclipse-temurin-21
+COPY target/ShoppingCart_Db-1.0-SNAPSHOT.jar app.jar
+
 
 ENV DISPLAY=host.docker.internal:0.0
 
-RUN apt-get update && apt-get install -y wget unzip libgtk-3-0 libgbm1 libx11-6 && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN wget https://download2.gluonhq.com/openjfx/21.0.11/openjfx-21.0.11-ea+3_linux-aarch64_bin-sdk.zip -O /tmp/openjfx.zip && unzip /tmp/openjfx.zip -d /opt && mv /opt/javafx-* /opt/openjfx && rm /tmp/openjfx.zip
-
-WORKDIR /app
-
-COPY --from=build /app/target/org.example.ShoppingCartApp.jar app.jar
-
-ENTRYPOINT ["java", "--module-path", "/opt/openjfx/lib", "--add-modules", "javafx.controls,javafx.fxml", "-jar", "app.jar"]
+CMD ["java", "-Dprism.order=sw", "--module-path", "/javafx-sdk/lib", "--add-modules", "javafx.controls,javafx.fxml,javafx.swing", "-jar", "app.jar"]
+#CMD ["java", "--module-path", "/javafx-sdk/lib", "--add-modules", "javafx.controls,javafx.fxml", "-jar", "app.jar"]

@@ -40,8 +40,9 @@ class TranslationDAOTest {
                 );
             """);
 
-            st.execute("INSERT INTO languages (code, country) VALUES ('en', 'US');");
-            st.execute("INSERT INTO content (content_key) VALUES ('greeting');");
+            st.execute("INSERT INTO languages (id, code, country) VALUES (1, 'en', 'US');");
+            st.execute("INSERT INTO content (id, content_key) VALUES (1, 'greeting');");
+
             st.execute("""
                 INSERT INTO translations (content_id, language_id, translated_text)
                 VALUES (1, 1, 'Hello');
@@ -56,13 +57,13 @@ class TranslationDAOTest {
 
     @Test
     void testFindTranslationReturnsCorrectValue() {
-        String result = dao.findTranslation("greeting", "en", "US");
+        String result = dao.findTranslation("greeting", 1);
         assertEquals("Hello", result);
     }
 
     @Test
     void testFindTranslationReturnsNullWhenNotFound() {
-        String result = dao.findTranslation("missing.key", "en", "US");
+        String result = dao.findTranslation("missing.key", 1);
         assertNull(result);
     }
 }

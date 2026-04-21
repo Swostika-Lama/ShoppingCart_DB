@@ -11,11 +11,11 @@ class CartRecordTest {
 
         store.setTotalItems(5);
         store.setTotalCost(19.99);
-        store.setLanguage("en");
+        store.setLanguageId(1); // English ID
 
         assertEquals(5, store.getTotalItems());
-        assertEquals(19.99, store.getTotalCost());
-        assertEquals("en", store.getLanguage());
+        assertEquals(19.99, store.getTotalCost(), 0.0001);
+        assertEquals(1, store.getLanguageId());
     }
 
     @Test
@@ -23,7 +23,7 @@ class CartRecordTest {
         CartRecord store = new CartRecord();
 
         assertEquals(0, store.getTotalItems());
-        assertEquals(0.0, store.getTotalCost());
-        assertNull(store.getLanguage());
+        assertEquals(0.0, store.getTotalCost(), 0.0001);
+        assertEquals(0, store.getLanguageId());
     }
 }

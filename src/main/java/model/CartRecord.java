@@ -1,16 +1,36 @@
 package model;
 
 public class CartRecord {
+
     private int totalItems;
     private double totalCost;
-    private String language;
 
-    public int getTotalItems() { return totalItems; }
-    public void setTotalItems(int totalItems) { this.totalItems = totalItems; }
+    // FIX: use languageId instead of String
+    private int languageId;
 
-    public double getTotalCost() { return totalCost; }
-    public void setTotalCost(double totalCost) { this.totalCost = totalCost; }
+    public int getTotalItems() {
+        return totalItems;
+    }
 
-    public String getLanguage() { return language; }
-    public void setLanguage(String language) { this.language = language; }
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
+    }
+
+    public double getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(double totalCost) {
+        this.totalCost = totalCost;
+    }
+
+    // NEW
+    public int getLanguageId() {
+        return languageId;
+    }
+
+    //NEW
+    public void setLanguageId(int languageId) {
+        this.languageId = languageId;
+    }
 }

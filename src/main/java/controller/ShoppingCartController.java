@@ -14,7 +14,6 @@ import service.LocalizationService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class ShoppingCartController {
 
@@ -36,7 +35,9 @@ public class ShoppingCartController {
     private LocalizationService localizationService;
     private CartService cartService;
 
-    private Locale currentLocale = Locale.forLanguageTag("en-US");
+    // ✅ FIX: use language ID instead of Locale
+    private int currentLanguageId = 1;
+
     private final List<ItemRow> itemRows = new ArrayList<>();
 
     private static class ItemRow {
@@ -53,13 +54,10 @@ public class ShoppingCartController {
         }
     }
 
-    // Setter injection for LocalizationService
     public void setLocalizationService(LocalizationService ls) {
         this.localizationService = ls;
-        updateTexts();
     }
 
-    //Setter injection for CartService (FIX)
     public void setCartService(CartService cs) {
         this.cartService = cs;
     }
@@ -69,57 +67,69 @@ public class ShoppingCartController {
         dropDown.getItems().addAll("English", "Finnish", "Swedish", "Japanese", "Arabic");
         dropDown.setValue("English");
         calculateButton.setDisable(true);
+
+        currentLanguageId = 1;
     }
 
+    // =========================
+    // LANGUAGE HANDLING FIXED
+    // =========================
     @FXML
     public void handleLanguage() {
         String selected = dropDown.getValue();
 
         switch (selected) {
             case "Finnish":
-                currentLocale = Locale.forLanguageTag("fi-FI");
+                currentLanguageId = 2;
                 break;
             case "Swedish":
-                currentLocale = Locale.forLanguageTag("sv-SE");
+                currentLanguageId = 3;
                 break;
             case "Japanese":
-                currentLocale = Locale.forLanguageTag("ja-JP");
+                currentLanguageId = 4;
                 break;
             case "Arabic":
-                currentLocale = Locale.forLanguageTag("ar-SA");
+                currentLanguageId = 5;
                 break;
             default:
-                currentLocale = Locale.forLanguageTag("en-US");
+                currentLanguageId = 1;
         }
 
         updateTexts();
     }
 
+    // =========================
+    // UPDATE UI TEXTS
+    // =========================
     private void updateTexts() {
         if (localizationService == null) return;
 
+        // RTL support for Arabic
         rootPane.setNodeOrientation(
-                currentLocale.getLanguage().equals("ar")
+                currentLanguageId == 5
                         ? NodeOrientation.RIGHT_TO_LEFT
                         : NodeOrientation.LEFT_TO_RIGHT
         );
 
-        selectLabel.setText(localizationService.get("select.language", currentLocale));
-        languageConfirm.setText(localizationService.get("confirm.language", currentLocale));
-        itemLabel.setText(localizationService.get("enter.number.of.items", currentLocale));
-        itemPlaceholder.setPromptText(localizationService.get("number.of.items.prompt", currentLocale));
-        itemButton.setText(localizationService.get("enter.items", currentLocale));
-        calculateButton.setText(localizationService.get("calculate.total", currentLocale));
-        totalLabel.setText(localizationService.get("total.cost", currentLocale));
+        selectLabel.setText(localizationService.get("select.language", currentLanguageId));
+        languageConfirm.setText(localizationService.get("confirm.language", currentLanguageId));
+        itemLabel.setText(localizationService.get("enter.number.of.items", currentLanguageId));
+        itemPlaceholder.setPromptText(localizationService.get("number.of.items.prompt", currentLanguageId));
+        itemButton.setText(localizationService.get("enter.items", currentLanguageId));
+        calculateButton.setText(localizationService.get("calculate.total", currentLanguageId));
+        totalLabel.setText(localizationService.get("total.cost", currentLanguageId));
     }
 
+    // =========================
+    // CREATE ITEM INPUT FIELDS
+    // =========================
     @FXML
     public void handleItem() {
         try {
             int itemCount = Integer.parseInt(itemPlaceholder.getText());
 
             if (itemCount <= 0) {
-                showError(localizationService.get("error.invalid.number", currentLocale));
+                showError(localizationService.get("error.invalid.number", currentLanguageId));
                 return;
             }
 
@@ -127,6 +137,7 @@ public class ShoppingCartController {
             itemRows.clear();
 
             for (int i = 0; i < itemCount; i++) {
+
                 Label qLabel = new Label("Qty " + (i + 1));
                 TextField qField = new TextField();
 
@@ -144,16 +155,18 @@ public class ShoppingCartController {
             calculateButton.setDisable(false);
 
         } catch (NumberFormatException e) {
-            showError(localizationService.get("error.invalid.input", currentLocale));
+            showError(localizationService.get("error.invalid.input", currentLanguageId));
         }
     }
 
+    // =========================
+    // CALCULATE TOTAL
+    // =========================
     @FXML
     public void handleCalculate() {
 
-        // ✅ FAIL FAST (prevents null crash)
         if (cartService == null) {
-            throw new IllegalStateException("CartService was not injected into controller");
+            throw new IllegalStateException("CartService not injected");
         }
 
         try {
@@ -161,6 +174,7 @@ public class ShoppingCartController {
             double grandTotal = 0.0;
 
             for (int i = 0; i < itemRows.size(); i++) {
+
                 ItemRow row = itemRows.get(i);
 
                 double price = Double.parseDouble(row.priceField.getText());
@@ -174,23 +188,28 @@ public class ShoppingCartController {
                 item.setPrice(price);
                 item.setQuantity(quantity);
                 item.setSubtotal(subtotal);
+
                 items.add(item);
             }
 
             totalLabel.setText(
-                    localizationService.get("total.cost", currentLocale) + " " + grandTotal
+                    localizationService.get("total.cost", currentLanguageId)
+                            + " " + grandTotal
             );
 
-            cartService.saveCart(items, currentLocale.getLanguage());
+            cartService.saveCart(items, currentLanguageId);
 
         } catch (NumberFormatException e) {
-            showError(localizationService.get("error.invalid.input", currentLocale));
+            showError(localizationService.get("error.invalid.input", currentLanguageId));
         }
     }
 
+    // =========================
+    // ERROR HANDLING
+    // =========================
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(localizationService.get("error.title", currentLocale));
+        alert.setTitle(localizationService.get("error.title", currentLanguageId));
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

@@ -1,6 +1,5 @@
 package dao;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,21 +16,21 @@ public class TranslationDAO {
         this.conn = conn;
     }
 
-    public String findTranslation(String key, String lang, String country) {
+    // ✅ FIXED: use languageId only
+    public String findTranslation(String key, int languageId) {
+
         String sql = """
             SELECT t.translated_text
             FROM translations t
             JOIN content c ON t.content_id = c.id
-            JOIN languages l ON t.language_id = l.id
             WHERE c.content_key = ?
-            AND l.code = ?
-            AND l.country = ?
+            AND t.language_id = ?
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, key);
-            stmt.setString(2, lang);
-            stmt.setString(3, country);
+            stmt.setInt(2, languageId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -40,10 +39,10 @@ public class TranslationDAO {
             }
 
         } catch (Exception e) {
-            logger.error("Error fetching translation for key={}, lang={}, country={}",
-                    key, lang, country, e);
+            logger.error("Error fetching translation for key={}, languageId={}",
+                    key, languageId, e);
         }
 
-        return null; // fallback handled in LocalizationService
+        return null;
     }
 }
